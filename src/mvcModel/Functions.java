@@ -603,7 +603,7 @@ public class Functions
 		}
 	}
 
-
+	
 	public void outputMSGlobalContextsAsPatterns(LinkedList<GlobalContext> GCset)
 	{
 		int i=1;

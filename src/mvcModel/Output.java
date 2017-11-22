@@ -140,8 +140,8 @@ public class Output
 			ds.end();
 		}
 	}
-	
-	
+
+
 	public void addIdentityStatement(Resource resource1, Resource resource2, GlobalContext GC)
 	{		
 		try {
@@ -171,7 +171,7 @@ public class Output
 			ds.end();
 		}		
 	}
-	
+
 	//GC1 more specific than GC2
 	public void addHierarchyStatement(String GC1_ID, String GC2_ID)
 	{		
@@ -185,6 +185,26 @@ public class Output
 				ds.getDefaultGraph().add(st.asTriple());	
 				//RDFDataMgr.write(outputStream, namedGraph, RDFFormat.TRIG) ;
 			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			//RDFDataMgr.writeTriples(out, iterator);
+			ds.commit();
+			ds.end();
+		}		
+	}
+
+	//GC1 more specific than GC2
+	public void addHierarchyStatement(GlobalContext GC1, GlobalContext GC2)
+	{		
+		try {
+			ds.begin(ReadWrite.WRITE);
+			Node n1 = NodeFactory.createURI(prefix+GC1.id);
+			Node n2 = NodeFactory.createURI(prefix+GC2.id);
+			Statement st = ResourceFactory.createStatement(ResourceFactory.createResource(n1.getURI()),moreSpecificThan,ResourceFactory.createResource(n2.getURI()));
+			ds.getDefaultGraph().add(st.asTriple());	
+			//RDFDataMgr.write(outputStream, namedGraph, RDFFormat.TRIG) ;
+
 		} catch (Exception e) {
 			e.printStackTrace();
 		} finally {
@@ -212,6 +232,16 @@ public class Output
 			writer.close();
 		}
 
+	}
+	
+	
+	public void writeDataSet()
+	{
+		ds.begin(ReadWrite.WRITE);
+		RDFDataMgr.write(outputStream, ds, RDFFormat.TRIG) ;
+		ds.clear();
+		ds.commit();
+		ds.end();
 	}
 
 }

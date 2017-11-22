@@ -12,6 +12,7 @@ public class MainProgram
 		Controller theController = new Controller();
 		//String output = "data/";
 		String outputServeur = "/opt/joe/";
+		String output = "data/";
 		Map<String, String> listNamedGraph = new HashMap<>();
 		listNamedGraph.put("caredas-these-florence-barbe", "http://opendata.inra.fr/data/caredas-these-florence-barbe");
 		listNamedGraph.put("caredas-bigaski","http://opendata.inra.fr/data/caredas-bigaski");
@@ -24,6 +25,7 @@ public class MainProgram
 		listNamedGraph.put("caredas-tarrega","http://opendata.inra.fr/data/caredas-tarrega");
 		listNamedGraph.put("caredas-phan","http://opendata.inra.fr/data/caredas-phan");
 		listNamedGraph.put("caredas-these-boisard","http://opendata.inra.fr/data/caredas-these-boisard");
+
 
 		//theController.DECIDE("data/PO2_Carredas.rdf", "Carredas");
 
@@ -60,9 +62,26 @@ public class MainProgram
 
 		//theController.DECIDE("http://opendata.inra.fr/PO2/mixture", "http://193.54.111.143:7200/repositories/PO2", output, UP, NP, CP, UC);
 
-		theController.DECIDE("http://opendata.inra.fr/PO2/mixture", "http://127.0.0.1:7200/repositories/PO2", outputServeur, UP, NP, CP, UC, listNamedGraph);
+		//theController.DECIDE("http://opendata.inra.fr/PO2/step", "http://193.54.111.143:7200/repositories/PO2", output, UP, NP, CP, UC, listNamedGraph);
+
+		//-----------DECIDE pour les mixtures sur le serveur
+		//theController.DECIDE("http://opendata.inra.fr/PO2/mixture", "http://127.0.0.1:7200/repositories/PO2", outputServeur, UP, NP, CP, UC, listNamedGraph);
+
+		//-----------DECIDE pour les etapes sur le serveur
+		//theController.DECIDE("http://opendata.inra.fr/PO2/step", "http://127.0.0.1:7200/repositories/PO2", outputServeur, UP, NP, CP, UC, listNamedGraph);
+
+
+		theController.detectPredictionRules
+		("http://193.54.111.143:7200/repositories/PO2", // the ontology
+		"http://193.54.111.143:7200/repositories/ID", // dataset with the contextual identity links
+		output, // path to save rules
+		"http://opendata.inra.fr/PO2/mixture", //target class
+		"http://www.decideOutput/identiConTo", // identiConTo property
+		"http://www.decideOutput/moreSpecificThan"); // more specific than property
+		 		
+
+		//theController.addGlobalContextsRelations("http://193.54.111.143:7200/repositories/ID", output, "http://opendata.inra.fr/PO2/mixture", "http://www.decideOutput/identiConTo", "http://www.decideOutput/moreSpecificThan");
 
 	}
 
 }
-	

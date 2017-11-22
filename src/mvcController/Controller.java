@@ -1,5 +1,6 @@
 package mvcController;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -32,20 +33,34 @@ public class Controller
 
 
 		for(Map.Entry<String, String> namedGraph : listNamedGraph.entrySet()) {
-
 			SPARQLqueries blabla = new SPARQLqueries(endPoint);
 			List<Resource> list2 = blabla.listInstancesOfClassFromNamedGraph(targetClass, namedGraph.getValue());
 			theModel.decide(namedGraph.getKey(), list2);
-
 		}
-
-
-		
+	
 		////////////////TIME/////////////////
 		System.out.print("---- END PROGRAM ----  ");
-
-
 		/////////////////////////////////////
+	}
+	
+	
+	public void detectPredictionRules(String ontologyEndPoint, String contextsEndPoint, String rulesOutputPath, String targetClass, String identiConTo, String moreSpecificThan)
+	{
+		try {
+			RulesDetection theModel = new RulesDetection(ontologyEndPoint, contextsEndPoint, rulesOutputPath, targetClass, identiConTo, moreSpecificThan);
+			theModel.detectRules();
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	
+	public void addGlobalContextsRelations(String contextsEndPoint, String output, String targetClass, String identiConTo, String moreSpecificThan)
+	{
+		RulesDetection theModel = new RulesDetection(contextsEndPoint, output, targetClass, identiConTo, moreSpecificThan);
+		theModel.checkGlobalContextsRelations();
 	}
 
 	// load the raw model in the mvcModel

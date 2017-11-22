@@ -570,6 +570,323 @@ public class SPARQLqueries
 			return null;
 		}		
 	}
+	
+		
+	public ResultSetMem getGlobalContextAxioms(String GC_URI)
+	{
+		try {
+			String queryString = prefixes
+					+ "SELECT ?s ?p ?o "
+					+ " WHERE "
+					+ "{ "
+					+ "GRAPH <" + GC_URI +"> "
+					+ "{ "
+					+ "?p <http://www.w3.org/2000/01/rdf-schema#domain> ?s. "
+					+ " OPTIONAL{ ?p <http://www.w3.org/2000/01/rdf-schema#range> ?o}"
+					+ " } "
+					+ "FILTER NOT EXISTS {?p <http://www.decideOutput/identiConTo> ?s}"
+					+ "}"; 	
+			Query query = QueryFactory.create(queryString);			
+			QueryExecution qe = QueryExecutionFactory.sparqlService(endPoint, query);		
+			ResultSetMem x = new ResultSetMem(qe.execSelect());
+			qe.close();
+			return x;
+		} catch (Exception e) {
+			System.out.println("Error Function: getGlobalContextAxioms" );
+			e.printStackTrace();			
+			return null;
+		}	
+	}
 
+	public ArrayList<String> listAllObservationAttributesNOisAbout()
+	{
+		try {
+			String queryString = prefixes
+					+ "SELECT DISTINCT ?Att FROM " + explicitGraph 
+					+ " WHERE "
+					+ "{ "
+					+ "{?obs <http://opendata.inra.fr/PO2/computedResult> ?attInstance.} UNION {?obs <http://opendata.inra.fr/PO2/observationResult> ?attInstance.}"
+					+ "?attInstance rdf:type ?Att."
+					+ "FILTER NOT EXISTS{?attInstance <http://purl.obolibrary.org/obo/IAO_0000136> ?IsAbout}"
+					+ "}"; 
+
+			ArrayList<String> nodesList = new ArrayList<>();
+			Query query = QueryFactory.create(queryString);			
+			QueryExecution qe = QueryExecutionFactory.sparqlService(endPoint, query);		
+			ResultSet results = qe.execSelect();
+			while (results.hasNext()) 
+			{
+				QuerySolution thisRow = results.next();
+				try
+				{
+					nodesList.add(thisRow.get("Att").toString());
+				} catch(Exception ex)
+				{
+
+				}
+			}
+			qe.close();
+			return nodesList;
+		} catch (Exception e) {
+			System.out.println("Error Function: listAllObservationAttributesNOisAbout" );
+			e.printStackTrace();			
+			return null;
+		}		
+	}
+	
+	public ResultSetMem listAllObservationAttributesYESisAbout()
+	{
+		try {
+			String queryString = prefixes
+					+ "SELECT DISTINCT ?Att ?IsAbout FROM " + explicitGraph 
+					+ " WHERE "
+					+ "{ "
+					+ "{?obs <http://opendata.inra.fr/PO2/computedResult> ?attInstance.} UNION {?obs <http://opendata.inra.fr/PO2/observationResult> ?attInstance.}"
+					+ "?attInstance rdf:type ?Att. "
+					+ "?attInstance <http://purl.obolibrary.org/obo/IAO_0000136> ?IsAbout"
+					+ "}"; 
+
+			Query query = QueryFactory.create(queryString);			
+			QueryExecution qe = QueryExecutionFactory.sparqlService(endPoint, query);		
+			ResultSetMem x = new ResultSetMem(qe.execSelect());
+			qe.close();
+			return x;
+		} catch (Exception e) {
+			System.out.println("Error Function: listAllObservationAttributesYESisAbout" );
+			e.printStackTrace();			
+			return null;
+		}		
+	}
+	
+	public ArrayList<String> getIsAboutOfAttribute(String attribute)
+	{
+		try {
+			String queryString = prefixes
+					+ "SELECT DISTINCT ?IsAbout FROM " + explicitGraph 
+					+ " WHERE "
+					+ "{ "
+					+ "?obs rdf:type <" + attribute + ">. "
+					+ "?obs <http://purl.obolibrary.org/obo/IAO_0000136> ?IsAbout. "
+					+ "}"; 
+
+			ArrayList<String> nodesList = new ArrayList<>();
+			Query query = QueryFactory.create(queryString);			
+			QueryExecution qe = QueryExecutionFactory.sparqlService(endPoint, query);		
+			ResultSet results = qe.execSelect();
+			while (results.hasNext()) 
+			{
+				QuerySolution thisRow = results.next();
+				try
+				{
+					nodesList.add(thisRow.get("IsAbout").toString());
+				} catch(Exception ex)
+				{
+
+				}
+			}
+			qe.close();
+			return nodesList;
+		} catch (Exception e) {
+			System.out.println("Error Function: getIsAboutOfAttribute" );
+			e.printStackTrace();			
+			return null;
+		}		
+	}
+	
+	public ResultSetMem listAllGlobalContexts(String identiConTo)
+	{
+		try {
+			String queryString = prefixes
+					+ "SELECT ?G (count(?res1) as ?count)" 
+					+ " WHERE "
+					+ "{ "
+					+ "Graph ?G {?res1 <" + identiConTo +"> ?res2}. "
+					+ "} GROUP BY ?G"; 	
+			Query query = QueryFactory.create(queryString);			
+			QueryExecution qe = QueryExecutionFactory.sparqlService(endPoint, query);		
+			ResultSetMem x = new ResultSetMem(qe.execSelect());
+			qe.close();
+			return x;
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			System.out.println("Error Function: listAllGlobalContexts" );
+			e.printStackTrace();			
+			return null;
+		}		
+	}
+	
+	
+	public ArrayList<String> listAllGlobalContextsInArray(String identiConTo)
+	{
+		try {
+			String queryString = prefixes
+					+ "SELECT DISTINCT ?G" 
+					+ " WHERE "
+					+ "{ "
+					+ "Graph ?G {?res1 <" + identiConTo +"> ?res2}. "
+					+ "}"; 
+
+			ArrayList<String> nodesList = new ArrayList<>();
+			Query query = QueryFactory.create(queryString);
+			
+			QueryExecution qe = QueryExecutionFactory.sparqlService(endPoint, query);		
+			ResultSet results = qe.execSelect();
+			while (results.hasNext()) 
+			{
+				QuerySolution thisRow = results.next();
+				try
+				{
+					nodesList.add(thisRow.get("G").toString());
+				} catch(Exception ex)
+				{
+
+				}
+			}
+			qe.close();
+			return nodesList;
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			System.out.println("Error Function: listAllGlobalContexts" );
+			e.printStackTrace();			
+			return null;
+		}		
+	}
+	
+	public int getNumberOfIdentiCalPairsMS(String GlobalContext, String identiConTo)
+	{
+		try {
+			String queryString = prefixes
+					+ "select (count(?m1) as ?count) "
+					+ " WHERE "
+					+ "{ "
+					+ "GRAPH <" + GlobalContext + "> {?m1 <" + identiConTo +"> ?m2}"
+					+ "}"; 	
+			Query query = QueryFactory.create(queryString);			
+			QueryExecution qe = QueryExecutionFactory.sparqlService(endPoint, query);		
+			ResultSet results = qe.execSelect();
+			QuerySolution thisRow = results.next();
+			qe.close();
+			return thisRow.getLiteral("count").getInt();
+		} catch (Exception e) {
+			System.out.println("Error Function: getNumberOfIdentiCalPairs" );
+			e.printStackTrace();			
+			return 0;
+		}		
+	}
+	
+	public ArrayList<String> getMoreSpecificContexts(String GlobalContext, String moreSpecificThan)
+	{
+		try {
+			String queryString = prefixes
+					+ "select ?G From " + explicitGraph 
+					+ " WHERE "
+					+ "{ "
+					+ "?G <"+ moreSpecificThan +"> <" + GlobalContext + ">."
+					+ "}"; 	
+			ArrayList<String> nodesList = new ArrayList<>();
+			Query query = QueryFactory.create(queryString);			
+			QueryExecution qe = QueryExecutionFactory.sparqlService(endPoint, query);		
+			ResultSet results = qe.execSelect();
+			while (results.hasNext()) 
+			{
+				QuerySolution thisRow = results.next();
+				try
+				{
+					nodesList.add(thisRow.get("G").toString());
+				} catch(Exception ex)
+				{
+
+				}
+			}
+			qe.close();
+			return nodesList;
+		} catch (Exception e) {
+			System.out.println("Error Function: getMoreSpecificContexts" );
+			e.printStackTrace();			
+			return null;
+		}		
+	}
+	
+	public ResultSetMem getAllIdentiConPairsOfContext(String GlobalContext, String identiConTo)
+	{
+		try {
+			String queryString = prefixes
+					+ "select ?res1 ?res2 From " + explicitGraph 
+					+ " WHERE "
+					+ "{ "
+					+ "GRAPH <" + GlobalContext + "> {?res1 <" + identiConTo + "> ?res2}. "
+					+ "}"; 	
+			Query query = QueryFactory.create(queryString);			
+			QueryExecution qe = QueryExecutionFactory.sparqlService(endPoint, query);		
+			ResultSetMem x = new ResultSetMem(qe.execSelect());
+			qe.close();
+			return x;
+		} catch (Exception e) {
+			System.out.println("Error Function: getAllIdentiConPairsOfContext" );
+			e.printStackTrace();			
+			return null;
+		}		
+	}
+	
+	public ResultSetMem getMixtureObservations_Simple_UM(String mixture, String observationProperty)
+	{
+		try {
+			String queryString = prefixes
+					+ "select ?att ?isAbout ?maxK ?minK ?maxS ?minS ?UM ?scale  From " + explicitGraph 
+					+ " WHERE "
+					+ "{ "
+					+ "?obs <http://opendata.inra.fr/PO2/observes> <" + mixture +">. "
+					+ "?obs <" + observationProperty + "> ?measure. "
+					+ "?measure rdf:type ?att. "
+					+ "?measure <http://opendata.inra.fr/PO2/maxKernel> ?maxK."
+					+ "?measure <http://opendata.inra.fr/PO2/minKernel> ?minK. "
+					+ "?measure <http://opendata.inra.fr/PO2/maxSupport> ?maxS. "
+					+ "?measure <http://opendata.inra.fr/PO2/minSupport> ?minS. "
+					+ "?measure <http://opendata.inra.fr/PO2/hasForUnitOfMeasure> ?UM. "
+					+ "OPTIONAL {?measure <http://purl.obolibrary.org/obo/IAO_0000136> ?isAbout}. "
+					+ "OPTIONAL {?obs <http://opendata.inra.fr/PO2/hasForScale> ?scale} "
+					+ "FILTER NOT EXISTS { ?measure <http://opendata.inra.fr/PO2/isSingularMeasureOf> ?arg}"
+					+ "}"; 	
+			Query query = QueryFactory.create(queryString);			
+			QueryExecution qe = QueryExecutionFactory.sparqlService(endPoint, query);		
+			ResultSetMem x = new ResultSetMem(qe.execSelect());
+			qe.close();
+			return x;
+		} catch (Exception e) {
+			System.out.println("Error Function: getMixtureObservations_Simple_UM" );
+			e.printStackTrace();			
+			return null;
+		}		
+	}
+	
+	public ResultSetMem getMixtureObservations_Simple_MesScale(String mixture, String observationProperty)
+	{
+		try {
+			String queryString = prefixes
+					+ "select ?att ?isAbout ?val ?MS ?scale From " + explicitGraph 
+					+ " WHERE "
+					+ "{ "
+					+ "?obs <http://opendata.inra.fr/PO2/observes> <" + mixture +">. "
+					+ "?obs <" + observationProperty + "> ?measure. "
+					+ "?measure rdf:type ?att. "
+					+ "?measure <http://opendata.inra.fr/PO2/hasForValue> ?val."
+					+ "?measure <http://opendata.inra.fr/PO2/hasForMeasurementScale> ?MS. "
+					+ "OPTIONAL {?measure <http://purl.obolibrary.org/obo/IAO_0000136> ?isAbout} "
+					+ "OPTIONAL {?obs <http://opendata.inra.fr/PO2/hasForScale> ?scale} "
+					+ "FILTER NOT EXISTS { ?measure <http://opendata.inra.fr/PO2/isSingularMeasureOf> ?arg}"
+					+ "}"; 	
+			Query query = QueryFactory.create(queryString);			
+			QueryExecution qe = QueryExecutionFactory.sparqlService(endPoint, query);		
+			ResultSetMem x = new ResultSetMem(qe.execSelect());
+			qe.close();
+			return x;
+		} catch (Exception e) {
+			System.out.println("Error Function: getMixtureObservations_Simple_MesScale" );
+			e.printStackTrace();			
+			return null;
+		}		
+	}
+	
+	
 
 }

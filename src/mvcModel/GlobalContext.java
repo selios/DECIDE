@@ -4,6 +4,9 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.TreeMap;
+
+import org.apache.jena.query.QuerySolution;
+import org.apache.jena.query.ResultSet;
 import org.apache.jena.vocabulary.RDFS;
 
 public class GlobalContext implements Serializable
@@ -241,31 +244,77 @@ public class GlobalContext implements Serializable
 		{
 			for(String range : PropertyToRanges.get(prop))
 			{
-				Pattern p = new Pattern(prop, RDFS.range.getURI(), range);
-				axioms.put(p.id, p);					
+				if(!range.equals(""))
+				{
+					Pattern p = new Pattern(prop, RDFS.range.getURI(), range);
+					axioms.put(p.id, p);	
+				}								
 			}			
 		}
 		this.id = Integer.toString(this.axioms.keySet().hashCode());
 	}
 
-	
-
-	/*
-	ResourceFactory.createResource("asdasd");
-	UnionClass uc = namedGraph.createUnionClass(null, new RDFList);*/
-
-	/*public void writeGlobalContext()
+/*	public void getAxiomsFromFile(ResultSet rs)
 	{
-		for(String c : localContexts.keySet())
+		while (rs.hasNext()) 
 		{
-			if(localContexts.get(c).type == true)
+			QuerySolution thisRow = rs.next();
+			try
 			{
-				for()
+				String cl = thisRow.get("s").toString();
+				LocalContext localC;
+				if(this.localContexts.containsKey(cl))
+				{
+					localC = this.localContexts.get(cl);
+					//this.localContexts.get(cl).addProperty(thisRow.get("p").toString(), thisRow.get("o").toString());
+				}
+				else
+				{
+					localC = new LocalContext(cl, true);
+					this.localContexts.put(cl, localC);
+				}
+				localC.addProperty(thisRow.get("p").toString(), thisRow.get("o").toString());
+			} catch(Exception ex)
+			{
+				ex.getMessage();
+				System.out.println("Error Function: getAxiomsFromFile");
 			}
 		}
 	}*/
 
-
+	public void getAxiomsFromFile(ResultSet rs)
+	{
+		while (rs.hasNext()) 
+		{
+			QuerySolution thisRow = rs.next();
+			try
+			{
+				String cl = thisRow.get("s").toString();
+				LocalContext localC;
+				if(this.localContexts.containsKey(cl))
+				{
+					localC = this.localContexts.get(cl);				
+				}
+				else
+				{
+					localC = new LocalContext(cl, true);
+					this.localContexts.put(cl, localC);
+				}
+				if(thisRow.get("o") == null)
+				{
+					localC.addProperty(thisRow.get("p").toString(), "");
+				}
+				else
+				{
+					localC.addProperty(thisRow.get("p").toString(), thisRow.get("o").toString());
+				}
+			} catch(Exception ex)
+			{
+				ex.getMessage();
+				System.out.println("Error Function: getAxiomsFromFile");
+			}
+		}
+	}
 
 
 

@@ -25,12 +25,14 @@
             status="integration">
     </info>
     <dependencies>
+    	
         <dependency org="org.rocksdb" name="rocksdbjni" rev="5.5.1"/>
         <dependency org="org.apache.jena" name="jena-core" rev="3.4.0"/>
         <dependency org="org.apache.jena" name="jena-tdb" rev="3.4.0"/>
         <dependency org="commons-io" name="commons-io" rev="2.6"/>
         <dependency org="com.google.guava" name="guava" rev="23.4-jre"/>
         <dependency org="org.mongodb" name="mongo-java-driver" rev="3.5.0"/>
+        <dependency org="mysql" name="mysql-connector-java" rev="5.1.6"/>
 
     </dependencies>
 
