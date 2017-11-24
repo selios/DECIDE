@@ -71,15 +71,15 @@ public class MySQLqueries
 	public MySQLqueries(Boolean delete) throws ClassNotFoundException, SQLException
 	{
 		Class.forName("com.mysql.jdbc.Driver");
-		if(delete == true)
+		/*if(delete == true)
 		{
 			dropSchema(this.dbName);
-		}
-		createSchema(this.dbName);
+		}*/
+		//createSchema(this.dbName);
 		connectDB = DriverManager
 				.getConnection("jdbc:mysql://" + host + "/"+dbName+"?"
 						+ "user=" + user + "&password=" + passwd );
-		if(delete == true)
+		/*if(delete == true)
 		{
 			executeUpdate(table_attributes);
 			executeUpdate(table_tc);
@@ -88,7 +88,7 @@ public class MySQLqueries
 			executeUpdate(table_tc_observations);
 			executeUpdate(table_GC_observations);
 			executeUpdate(table_rules);
-		}	
+		}	*/
 	}
 
 	public void executeUpdate(String query)
@@ -544,6 +544,8 @@ public class MySQLqueries
 				+ "VALUES('" + ID_GC + "', '" + ID_ATT + "', '" + AVG_ERROR_RATE +"', '" + support +"','"+desc_support+"')";
 		executeUpdate(query);
 	}
+	
+
 
 
 }

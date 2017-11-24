@@ -2,6 +2,7 @@ package mvcModel;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.TreeMap;
@@ -40,7 +41,7 @@ public class RulesDetection
 		this.QUERYcontexts = new SPARQLqueries(contextsEndPoint);
 		this.allGlobalContexts = new HashMap<>();
 		this.AllTCinstances = new ArrayList<>();
-		QUERYdb = new MySQLqueries(true); 
+		QUERYdb = new MySQLqueries(false); 
 	}
 
 	public RulesDetection(String contextsEndPoint, String globalContextsOutput, String targetClass, String identiConToProperty, String moreSpecificThan)
@@ -55,14 +56,71 @@ public class RulesDetection
 
 	public void detectRules()
 	{			
-		//addAllAttributesToDB();
-		//addAllTCinstancesToDB();
-		//addTCObservationsToDB();
-		//addMinMaxForEachAttribute();
+		addAllAttributesToDB();
+		addAllTCinstancesToDB();
+		addTCObservationsToDB();
+		addMinMaxForEachAttribute();
 		addAllGlobalContextsToDB();
 		addGlobalContextsRelations();
-		//compareIdentiConPairs();
-		//generatePredictionRules();
+		compareIdentiConPairs();
+		generatePredictionRules();
+	}
+	
+	
+	public void checkRuleFromExpert()
+	{
+		String prefixes = "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> "
+				+ "PREFIX owl:<http://www.w3.org/2002/07/owl#> " + "PREFIX xsd: <http://www.w3.org/2001/XMLSchema#> "
+				+ "PREFIX core: <http://opendata.inra.fr/resources/core#> "
+				+ "PREFIX po2: <http://opendata.inra.fr/PO2/> " + "PREFIX IAO: <http://purl.obolibrary.org/obo/> "
+				+ "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> "
+				+ "PREFIX sesame: <http://www.openrdf.org/schema/sesame#> "
+				+ "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> " ;
+		/*String queryString = prefixes
+				+ "SELECT DISTINCT ?G" 
+				+ " WHERE "
+				+ "{ "
+				+ "Graph ?G {"
+				+ " <http://opendata.inra.fr/PO2/isComposedOf> rdfs:domain <http://opendata.inra.fr/PO2/mixture>."
+				+ " <http://opendata.inra.fr/PO2/isComposedOf> rdfs:range <http://aims.fao.org/aos/agrovoc/c_8309>."
+				+ " <http://opendata.inra.fr/PO2/minSupport> rdfs:domain <http://opendata.inra.fr/PO2/quality_teneur>."
+				+ " <http://opendata.inra.fr/PO2/minSupport> rdfs:range <http://www.w3.org/2000/01/rdf-schema#Literal>"
+						+ "}. "
+				+ "}"; */
+		String queryString = prefixes
+				+ "SELECT DISTINCT ?G" 
+				+ " WHERE { "
+				+ "Graph ?G {"
+				+ " <http://opendata.inra.fr/PO2/isComposedOf> rdfs:domain <http://opendata.inra.fr/PO2/mixture>."
+				+ " <http://opendata.inra.fr/PO2/isComposedOf> rdfs:range <http://opendata.inra.fr/PO2/eau_deionisee>."
+				+ " <http://opendata.inra.fr/PO2/minSupport> rdfs:domain <http://opendata.inra.fr/PO2/quality_teneur>."
+				+ " <http://opendata.inra.fr/PO2/minSupport> rdfs:range <http://www.w3.org/2000/01/rdf-schema#Literal>"
+						+ "}  filter not exists {"
+						+ "Graph ?G2 {"
+						+ " <http://opendata.inra.fr/PO2/isComposedOf> rdfs:domain <http://opendata.inra.fr/PO2/mixture>."
+						+ " <http://opendata.inra.fr/PO2/isComposedOf> rdfs:range <http://opendata.inra.fr/PO2/eau_deionisee>."
+						+ " <http://opendata.inra.fr/PO2/minSupport> rdfs:domain <http://opendata.inra.fr/PO2/quality_teneur>."
+						+ " <http://opendata.inra.fr/PO2/minSupport> rdfs:range <http://www.w3.org/2000/01/rdf-schema#Literal>"
+								+ "} "	
+						+ "  ?G <http://www.decideOutput/moreSpecificThan> ?G2 "
+						+ "filter (?G != ?G2) } }"; 
+		//Collection<String> allContexts = QUERYcontexts.writeQuery(queryString);
+		// allContexts.removeAll(allContexts2);
+		Collection<String> allContexts = QUERYcontexts.writeQuery(queryString);
+	
+		String query = "SELECT AVG(AVG_ERROR_RATE), AVG(SUPPORT), sum(TOTAL_NB) "
+				+ "FROM rules "
+				+ "WHERE ID_ATT =20 AND (";
+		for(String GC : allContexts)
+		{
+			query = query + " (SELECT ID_GC FROM global_context "
+					+ "WHERE URI_GC= '" + GC + "') OR";
+			System.out.println(GC);
+		}
+		query =  query.substring(0, query.length() - 2);
+		query = query + ")";
+		System.out.println();
+		
 	}
 
 
@@ -454,7 +512,7 @@ public class RulesDetection
 				System.out.println("Error Finding Attribute in DB");
 			}
 		}
-		results = QUERYontology.getMixtureObservations_Simple_MesScale(TCinstance, obsProperty);
+		/*results = QUERYontology.getMixtureObservations_Simple_MesScale(TCinstance, obsProperty);
 		while(results.hasNext())
 		{
 			QuerySolution thisRow = results.next();
@@ -483,7 +541,7 @@ public class RulesDetection
 			{
 				System.out.println("Error Finding Attribute in DB");
 			}
-		}
+		}*/
 		if(add == true)
 		{
 			query =  query.substring(0, query.length() - 1);

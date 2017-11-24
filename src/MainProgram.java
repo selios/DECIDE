@@ -15,16 +15,16 @@ public class MainProgram
 		String output = "data/";
 		Map<String, String> listNamedGraph = new HashMap<>();
 		listNamedGraph.put("caredas-these-florence-barbe", "http://opendata.inra.fr/data/caredas-these-florence-barbe");
-		listNamedGraph.put("caredas-bigaski","http://opendata.inra.fr/data/caredas-bigaski");
-		listNamedGraph.put("caredas-true-food-2","http://opendata.inra.fr/data/caredas-true-food-2");
-		listNamedGraph.put("caredas-lawrence","http://opendata.inra.fr/data/caredas-lawrence");
-		listNamedGraph.put("caredas-prasel","http://opendata.inra.fr/data/caredas-prasel");
-		listNamedGraph.put("caredas-sim","http://opendata.inra.fr/data/caredas-sim");
-		listNamedGraph.put("caredas-mosca","http://opendata.inra.fr/data/caredas-mosca");
-		listNamedGraph.put("caredas-gierczynski","http://opendata.inra.fr/data/caredas-gierczynski");
-		listNamedGraph.put("caredas-tarrega","http://opendata.inra.fr/data/caredas-tarrega");
-		listNamedGraph.put("caredas-phan","http://opendata.inra.fr/data/caredas-phan");
-		listNamedGraph.put("caredas-these-boisard","http://opendata.inra.fr/data/caredas-these-boisard");
+		//listNamedGraph.put("caredas-bigaski","http://opendata.inra.fr/data/caredas-bigaski");
+		//listNamedGraph.put("caredas-true-food-2","http://opendata.inra.fr/data/caredas-true-food-2");
+		//listNamedGraph.put("caredas-lawrence","http://opendata.inra.fr/data/caredas-lawrence");
+		//listNamedGraph.put("caredas-prasel","http://opendata.inra.fr/data/caredas-prasel");
+		//listNamedGraph.put("caredas-sim","http://opendata.inra.fr/data/caredas-sim");
+		//listNamedGraph.put("caredas-mosca","http://opendata.inra.fr/data/caredas-mosca");
+		//listNamedGraph.put("caredas-gierczynski","http://opendata.inra.fr/data/caredas-gierczynski");
+		//listNamedGraph.put("caredas-tarrega","http://opendata.inra.fr/data/caredas-tarrega");
+		//listNamedGraph.put("caredas-phan","http://opendata.inra.fr/data/caredas-phan");
+		//listNamedGraph.put("caredas-these-boisard","http://opendata.inra.fr/data/caredas-these-boisard");
 
 
 		//theController.DECIDE("data/PO2_Carredas.rdf", "Carredas");
@@ -56,21 +56,22 @@ public class MainProgram
 		UC[1] = "http://opendata.inra.fr/PO2/observation";
 
 
-		//theController.DECIDE("http://www.semanticweb.org/drugOnto/Drug", "http://192.168.1.120:7200/repositories/Example_Drugs", output, UP, NP, CP, UC);
+		//theController.DECIDE("http://www.semanticweb.org/drugOnto/Drug", "http://192.168.1.120:7200/repositories/Example_Drugs", output, UP, NP, CP, UC, listNamedGraph);
 
-		//theController.DECIDE("http://opendata.inra.fr/PO2/mixture", "http://192.168.1.120:7200/repositories/Carredas_Test", output, UP, NP, CP, UC);
-
-		//theController.DECIDE("http://opendata.inra.fr/PO2/mixture", "http://193.54.111.143:7200/repositories/PO2", output, UP, NP, CP, UC);
-
-		//theController.DECIDE("http://opendata.inra.fr/PO2/step", "http://193.54.111.143:7200/repositories/PO2", output, UP, NP, CP, UC, listNamedGraph);
-
+	
+		
+		theController.DECIDE("http://opendata.inra.fr/PO2/mixture", "http://193.54.111.143:7200/repositories/PO2", output, UP, NP, CP, UC, listNamedGraph);
+			
+		//theController.DECIDE("http://opendata.inra.fr/PO2/step", "http://127.0.0.1:7200/repositories/Carredas_Test", output, UP, NP, CP, UC, listNamedGraph);
+			
+		
 		//-----------DECIDE pour les mixtures sur le serveur
 		//theController.DECIDE("http://opendata.inra.fr/PO2/mixture", "http://127.0.0.1:7200/repositories/PO2", outputServeur, UP, NP, CP, UC, listNamedGraph);
 
 		//-----------DECIDE pour les etapes sur le serveur
 		//theController.DECIDE("http://opendata.inra.fr/PO2/step", "http://127.0.0.1:7200/repositories/PO2", outputServeur, UP, NP, CP, UC, listNamedGraph);
 
-
+/*
 		theController.detectPredictionRules
 		("http://193.54.111.143:7200/repositories/PO2", // the ontology
 		"http://193.54.111.143:7200/repositories/ID", // dataset with the contextual identity links
@@ -78,8 +79,16 @@ public class MainProgram
 		"http://opendata.inra.fr/PO2/mixture", //target class
 		"http://www.decideOutput/identiConTo", // identiConTo property
 		"http://www.decideOutput/moreSpecificThan"); // more specific than property
-		 		
+*/		 		
 
+		/*theController.checkRuleFromExpert
+		("http://193.54.111.143:7200/repositories/PO2", // the ontology
+		"http://193.54.111.143:7200/repositories/ID", // dataset with the contextual identity links
+		output, // path to save rules
+		"http://opendata.inra.fr/PO2/mixture", //target class
+		"http://www.decideOutput/identiConTo", // identiConTo property
+		"http://www.decideOutput/moreSpecificThan");*/
+		
 		//theController.addGlobalContextsRelations("http://193.54.111.143:7200/repositories/ID", output, "http://opendata.inra.fr/PO2/mixture", "http://www.decideOutput/identiConTo", "http://www.decideOutput/moreSpecificThan");
 
 	}

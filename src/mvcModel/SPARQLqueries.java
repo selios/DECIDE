@@ -86,11 +86,11 @@ public class SPARQLqueries
 	}
 
 
-	public ArrayList<RDFNode> listInstantiatedClasses()
+	public ArrayList<String> listInstantiatedClasses()
 	{
 		try {
 			String queryString = prefixes
-					+ "SELECT DISTINCT ?s ?o FROM " + explicitGraph
+					+ "SELECT DISTINCT ?o FROM " + explicitGraph
 					+ " WHERE "
 					+ "{"
 					+ "?s rdf:type ?o "
@@ -98,7 +98,7 @@ public class SPARQLqueries
 					+ "FILTER(STRSTARTS(STR(?o), 'http://www.w3.org/2002/07/owl#')) }" 
 					+ "}"; 
 
-			ArrayList<RDFNode> nodesList = new ArrayList<>();
+			ArrayList<String> nodesList = new ArrayList<>();
 			Query query = QueryFactory.create(queryString);
 			
 			QueryExecution qe = QueryExecutionFactory.sparqlService(endPoint, query);		
@@ -106,7 +106,39 @@ public class SPARQLqueries
 			while (results.hasNext()) 
 			{
 				QuerySolution thisRow = results.next();
-				nodesList.add(thisRow.get("o"));
+				nodesList.add(thisRow.get("o").toString());
+			}
+			qe.close();
+			return nodesList;
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			System.out.println("Error Function: listInstantiatedClasses" );
+			e.printStackTrace();
+			return null;
+		}
+	}
+	
+	public ArrayList<String> listInstantiatedClasses2()
+	{
+		try {
+			String queryString = prefixes
+					+ "SELECT DISTINCT ?o FROM " + explicitGraph
+					+ " WHERE "
+					+ "{"
+					+ "?s rdf:type ?o "
+					+ "FILTER NOT EXISTS {"
+					+ "FILTER(STRSTARTS(STR(?o), 'http://www.w3.org/2002/07/owl#')) }" 
+					+ "}"; 
+
+			ArrayList<String> nodesList = new ArrayList<>();
+			Query query = QueryFactory.create(queryString);
+			
+			QueryExecution qe = QueryExecutionFactory.sparqlService(endPoint, query);		
+			ResultSet results = qe.execSelect();
+			while (results.hasNext()) 
+			{
+				QuerySolution thisRow = results.next();
+				nodesList.add(thisRow.get("o").toString());
 			}
 			qe.close();
 			return nodesList;
@@ -225,7 +257,7 @@ public class SPARQLqueries
 					//+ "SELECT DISTINCT ?s FROM <http://opendata.inra.fr/data/caredas-these-boisard> "
 					+ "SELECT DISTINCT ?s "
 					+ " WHERE "
-					+ "{"
+					+ "{ "
 					+ "?s rdf:type <" + cl + ">"
 					+ "}";
 
@@ -256,7 +288,7 @@ public class SPARQLqueries
 					+ "SELECT DISTINCT ?s FROM <" + namedGraph + ">"
 					+ " WHERE "
 					+ "{"
-					+ "?s rdf:type <" + cl + ">"
+					+ "{?s rdf:type <" + cl + ">} UNION {?s rdf:type ?c. ?c rdfs:subClassOf <" + cl + ">}"
 					+ "}";
 
 			ArrayList<Resource> nodesList = new ArrayList<>();
@@ -332,7 +364,7 @@ public class SPARQLqueries
 					+ "?s ?p ?o. "
 					+ "FILTER NOT EXISTS { FILTER isLiteral(?o).} "
 					+ "FILTER NOT EXISTS {   FILTER(STRSTARTS(STR(?o), 'http://www.w3.org/2002/07/owl')).} "
-					+ "FILTER NOT EXISTS {   FILTER(STRSTARTS(STR(?p), 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type')).} "
+				//	+ "FILTER NOT EXISTS {   FILTER(STRSTARTS(STR(?p), 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type')).} "
 					+ "FILTER NOT EXISTS {   FILTER(STRSTARTS(STR(?p), 'http://www.w3.org/2000/01/rdf-schema#subClassOf')).} "
 					+ "FILTER NOT EXISTS {   FILTER(STRSTARTS(STR(?p), 'http://www.w3.org/2000/01/rdf-schema#domain')).} "
 					+ "FILTER NOT EXISTS {   FILTER(STRSTARTS(STR(?p), 'http://www.w3.org/2000/01/rdf-schema#range')).} "
@@ -424,7 +456,7 @@ public class SPARQLqueries
 					+ "{ "
 					+ "<" + res1 + "> ?p ?o1. "
 					+ "<" + res2 + "> ?p ?o2. "
-					+ "FILTER NOT EXISTS {   FILTER(STRSTARTS(STR(?p), 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type')).} "
+				//	+ "FILTER NOT EXISTS {   FILTER(STRSTARTS(STR(?p), 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type')).} "
 					+ "}";
 
 			ArrayList<String> nodesList = new ArrayList<>();
@@ -533,7 +565,7 @@ public class SPARQLqueries
 		}		
 	}
 	
-	public ArrayList<RDFNode> getAllSuperClasses(String res1)
+	public ArrayList<String> getAllSuperClasses(String res1)
 	{
 		try {
 			String queryString = prefixes
@@ -541,11 +573,11 @@ public class SPARQLqueries
 					+ " WHERE "
 					+ "{ "
 					+ "<" + res1 + "> rdfs:subClassOf ?O. "
-					+ "FILTER NOT EXISTS {"
-					+ " ?O rdfs:subClassOf ?B. }" 
+					//+ "FILTER NOT EXISTS {"
+					//+ " ?O rdfs:subClassOf ?B. }" 
 					+ "}"; 
 
-			ArrayList<RDFNode> nodesList = new ArrayList<>();
+			ArrayList<String> nodesList = new ArrayList<>();
 			Query query = QueryFactory.create(queryString);
 			
 			QueryExecution qe = QueryExecutionFactory.sparqlService(endPoint, query);		
@@ -555,7 +587,7 @@ public class SPARQLqueries
 				QuerySolution thisRow = results.next();
 				try
 				{
-					nodesList.add(thisRow.get("O"));
+					nodesList.add(thisRow.get("O").toString());
 				} catch(Exception ex)
 				{
 
@@ -886,6 +918,39 @@ public class SPARQLqueries
 			return null;
 		}		
 	}
+	
+	
+	public ArrayList<String> writeQuery(String queryString)
+	{
+		try {
+			ArrayList<String> nodesList = new ArrayList<>();
+			Query query = QueryFactory.create(queryString);
+			
+			QueryExecution qe = QueryExecutionFactory.sparqlService(endPoint, query);		
+			ResultSet results = qe.execSelect();
+			while (results.hasNext()) 
+			{
+				QuerySolution thisRow = results.next();
+				try
+				{
+					nodesList.add(thisRow.get("G").toString());
+				} catch(Exception ex)
+				{
+
+				}
+			}
+			qe.close();
+			return nodesList;
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			System.out.println("Error Function: listAllGlobalContexts" );
+			e.printStackTrace();			
+			return null;
+		}		
+	}
+	
+	
+	
 	
 	
 

@@ -19,6 +19,7 @@ import com.mongodb.client.model.Filters;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.FileUtils;
 import org.apache.jena.ext.com.google.common.collect.Lists;
+import org.apache.jena.graph.NodeFactory;
 import org.apache.jena.ontology.AnnotationProperty;
 import org.apache.jena.ontology.OntModel;
 import org.apache.jena.ontology.OntModelSpec;
@@ -49,7 +50,7 @@ public class Functions
 	public String targetClass;
 	public Model modelTDB;
 	public OntModel model, infModel;
-	public static ArrayList<RDFNode> depClasses;
+	public static ArrayList<String> depClasses;
 	public static Map<String, String> typesOf;
 	public static ArrayList<Resource> tcInstances;
 	public ArrayList<String> dataProperties; 
@@ -111,14 +112,16 @@ public class Functions
 		depClasses.addAll(MySPARQLqueries.listDepClasses());*/
 
 		depClasses = new ArrayList<>();
-		ArrayList<RDFNode> instClasses = MySPARQLqueries.listInstantiatedClasses();
-		for(RDFNode o : instClasses)
+		ArrayList<String> instClasses = MySPARQLqueries.listInstantiatedClasses();
+		instClasses.add(targetClass);
+		depClasses.add(targetClass);
+		for(String o : instClasses)
 		{
-			if(checkIfUnwantedClass(o.toString()) == false)
+			if(checkIfUnwantedClass(o) == false)
 			{
 				if(!depClasses.contains(o))
 				{
-					ArrayList<RDFNode> list = MySPARQLqueries.getAllSuperClasses(o.toString());
+					ArrayList<String> list = MySPARQLqueries.getAllSuperClasses(o);
 					list.retainAll(instClasses);
 					if(list.isEmpty())
 					{
@@ -180,9 +183,8 @@ public class Functions
 	// Get all the individuals of the target class
 	public void getTcInstances(String targetClass)
 	{
-		this.targetClass = targetClass;
-		Resource tc = ResourceFactory.createResource(this.targetClass);
-		if(depClasses.contains(tc))
+		//Resource tc = ResourceFactory.createResource(this.targetClass);
+		if(depClasses.contains(targetClass))
 		{
 			tcInstances = new ArrayList<>();
 			try
@@ -195,8 +197,18 @@ public class Functions
 			}
 		}
 		else
-		{
+		{			
 			System.out.println("#### The target class does not exist in the Dep Classes");
+			depClasses.add(targetClass);
+			tcInstances = new ArrayList<>();
+			try
+			{
+				tcInstances.addAll(MySPARQLqueries.listInstancesOfClass(this.targetClass));
+			}
+			catch(Exception ex)
+			{
+				System.out.println(ex.getMessage());
+			}
 		}
 	}
 
@@ -309,7 +321,7 @@ public class Functions
 //				System.out.println("Number of Iterations to generate MS contexts: " + iterations);
 //				System.out.println("Number of Global Contexts: " + GCset.size());
 				numberOfIdentityStatements = numberOfIdentityStatements + GCset.size();
-//				outputMSGlobalContextsAsAxioms(GCset);
+				//outputMSGlobalContextsAsAxioms(GCset);
 				saveMSSet(res1, res2, GCset, out);
 			}
 		}
@@ -567,7 +579,7 @@ public class Functions
 							LocalContext LC_src = GC.localContexts.get(a_src.subject);
 							if(checkIfNecessaryProperty(a_src.subject, a_src.predicate, a_src.object) == false)
 							{
-								LC_src.removeAxiom(a_src);
+ 								LC_src.removeAxiom(a_src);
 								LC_src = checkForCoProperties(LC_src);
 								GC.replaceLocalContext(LC_src);		
 							}
@@ -621,7 +633,7 @@ public class Functions
 		for(GlobalContext GC : GCset)
 		{
 			System.out.println(i+") GC[" +GC.id+"]");
-			//GC.outputGlobalContextAsAxioms();
+			GC.outputGlobalContextAsAxioms();
 			i++;		
 		}
 	}
@@ -1051,9 +1063,9 @@ public class Functions
 							{
 								hmp2.get(thisPredicate).add(o2);		
 							}
-							if(dataProperties.contains(thisPredicate))
+							if(thisPredicate.equals("http://www.w3.org/1999/02/22-rdf-syntax-ns#type") || dataProperties.contains(thisPredicate))
 							{
-								if(compareDataLists(hmp1.get(thisPredicate), hmp2.get(thisPredicate)) == true)
+								if(compareDataLists(hmp1.get(thisPredicate), hmp2.get(thisPredicate), thisPredicate) == true)
 								{
 									LCout.addProperty(thisPredicate.toString(), RDFS.Literal.toString());
 									thisPair.addDPout(thisPredicate);
@@ -1547,7 +1559,7 @@ public class Functions
 	}*/
 
 
-	public Boolean compareDataLists(ArrayList<RDFNode> list1, ArrayList<RDFNode> list2)
+	public Boolean compareDataLists(ArrayList<RDFNode> list1, ArrayList<RDFNode> list2, String predicate)
 	{
 		if(list1.isEmpty() && list2.isEmpty())
 		{
@@ -1569,12 +1581,24 @@ public class Functions
 					{
 						if(!usedNodes.contains(n2))
 						{
-							if(n1.asLiteral().equals(n2.asLiteral()))
+							if(predicate.equals("http://www.w3.org/1999/02/22-rdf-syntax-ns#type"))
 							{
-								usedNodes.add(n2);
-								exist = true;
-								break;
+								if(n1.equals(n2))
+								{
+									usedNodes.add(n2);
+									exist = true;
+									break;
+								}
 							}
+							else
+							{
+								if(n1.asLiteral().equals(n2.asLiteral()))
+								{
+									usedNodes.add(n2);
+									exist = true;
+									break;
+								}
+							}						
 						}				
 					}
 					if(exist == false)
@@ -1853,7 +1877,7 @@ public class Functions
 	// Count Classes
 	public int countClasses() 
 	{
-		return MySPARQLqueries.listInstantiatedClasses().size();
+		return MySPARQLqueries.listInstantiatedClasses2().size();
 	}
 
 	// Return the number of statements in the loaded model
@@ -2150,15 +2174,14 @@ public class Functions
 
 	public void searchTypeOfForAllResources() {
 		int c = 0;
-		for (RDFNode node : depClasses) {
+		for (String node : depClasses) {
 			System.out.println((c++)+" / "+depClasses.size());
-			String n = node.toString();
-			ResultSet rs = MySPARQLqueries.listInstancesOfDepClass(n);
+			ResultSet rs = MySPARQLqueries.listInstancesOfDepClass(node);
 			while(rs.hasNext()) {
 				QuerySolution thisRow = rs.next();
 				try
 				{
-					typesOf.put(thisRow.get("s").toString(), n);
+					typesOf.put(thisRow.get("s").toString(), node);
 				} catch(Exception ex)
 				{
 

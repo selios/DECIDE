@@ -23,7 +23,7 @@ public class Controller
 
 		
 		theModel = new Functions(endPoint, output);
-		
+		theModel.targetClass = targetClass;
 		getExpertsConstraints(UP, NP, CP, UC);
 		theModel.getDepClasses();
 		theModel.searchTypeOfForAllResources();
@@ -61,6 +61,20 @@ public class Controller
 	{
 		RulesDetection theModel = new RulesDetection(contextsEndPoint, output, targetClass, identiConTo, moreSpecificThan);
 		theModel.checkGlobalContextsRelations();
+	}
+	
+	public void checkRuleFromExpert(String ontologyEndPoint, String contextsEndPoint, String rulesOutputPath, String targetClass, String identiConTo, String moreSpecificThan)
+	{
+	
+		RulesDetection theModel;
+		try {
+			theModel = new RulesDetection(ontologyEndPoint, contextsEndPoint, rulesOutputPath, targetClass, identiConTo, moreSpecificThan);
+			theModel.checkRuleFromExpert();
+		} catch (ClassNotFoundException | SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	
 	}
 
 	// load the raw model in the mvcModel
