@@ -60,7 +60,7 @@ public class MainProgram
 
 	
 		
-		theController.DECIDE("http://opendata.inra.fr/PO2/mixture", "http://193.54.111.143:7200/repositories/PO2", output, UP, NP, CP, UC, listNamedGraph);
+		theController.DECIDE("http://opendata.inra.fr/PO2/step", "http://193.54.111.143:7200/repositories/PO2", output, UP, NP, CP, UC, listNamedGraph);
 			
 		//theController.DECIDE("http://opendata.inra.fr/PO2/step", "http://127.0.0.1:7200/repositories/Carredas_Test", output, UP, NP, CP, UC, listNamedGraph);
 			

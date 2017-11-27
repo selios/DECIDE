@@ -321,7 +321,7 @@ public class Functions
 //				System.out.println("Number of Iterations to generate MS contexts: " + iterations);
 //				System.out.println("Number of Global Contexts: " + GCset.size());
 				numberOfIdentityStatements = numberOfIdentityStatements + GCset.size();
-				//outputMSGlobalContextsAsAxioms(GCset);
+//				outputMSGlobalContextsAsAxioms(GCset);
 				saveMSSet(res1, res2, GCset, out);
 			}
 		}
@@ -652,7 +652,7 @@ public class Functions
 		if(!allGlobalContexts.containsKey(GC.id))
 		{
 			out.writeGlobalContext(GC);
-			checkIdentityRelation(GC, out);
+			//checkIdentityRelation(GC, out);
 			out.addIdentityStatement(res1, res2, GC);
 		}
 		else
